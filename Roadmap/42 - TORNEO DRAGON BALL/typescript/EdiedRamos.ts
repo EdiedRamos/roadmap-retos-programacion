@@ -110,8 +110,8 @@ class Fighter {
     private avatar: string,
     private name: string,
     private velocity: number,
-    private attack: number,
-    private defense: number,
+    private damage: number,
+    private protection: number,
     private tournamentEmojiService: TournamentEmoji
   ) {}
 
@@ -127,16 +127,26 @@ class Fighter {
     return `[${this.tournamentEmojiService.speed}${this.velocity}]`;
   }
 
-  get beautyAttack() {
-    return `[${this.tournamentEmojiService.attack}${this.attack}]`;
+  get beautyDamage() {
+    return `[${this.tournamentEmojiService.attack}${this.damage}]`;
   }
 
-  get beautyDefense() {
-    return `[${this.tournamentEmojiService.defense}${this.defense}]`;
+  get beautyProtection() {
+    return `[${this.tournamentEmojiService.defense}${this.protection}]`;
+  }
+
+  // TODO: Implement this method
+  attack(): void {
+    // logic goes here
+  }
+
+  // TODO: Implement this method
+  defense(): void {
+    // logic goes here
   }
 
   toString(): string {
-    return `${this.beautyName}${this.beautyHealth}${this.beautyVelocity}${this.beautyAttack}${this.beautyDefense}`;
+    return `${this.beautyName}${this.beautyHealth}${this.beautyVelocity}${this.beautyDamage}${this.beautyProtection}`;
   }
 }
 
