@@ -84,6 +84,15 @@ class Helper {
       throw new Error("Parece que los géneros no están bien definidos.");
     return randomGenre;
   }
+
+  static async clearConsole(time: number): Promise<void> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.clear();
+        resolve();
+      }, time);
+    });
+  }
 }
 
 class TournamentEmoji {
@@ -155,13 +164,16 @@ class Fighter {
     this.health = Math.max(0, this.health - amount);
   }
 
-  attack(opponent: Fighter): void {
-    opponent.defense(this.damage);
+  attack(opponent: Fighter, narrator?: BattleNarrator): void {
+    opponent.defense(this.damage, narrator);
   }
 
-  defense(damage: number): void {
+  defense(damage: number, narrator?: BattleNarrator): void {
     const isAttackMissed = Math.random() < CHANCE_TO_MISS;
-    if (isAttackMissed) return;
+    if (isAttackMissed) {
+      narrator?.dodge(this);
+      return;
+    }
 
     if (this.protection > damage) {
       const finalDamage = Math.ceil(damage * DAMAGE_REDUCTION_PERCENTAGE);
@@ -178,7 +190,10 @@ class Fighter {
 }
 
 class FighterManager {
-  constructor(private tournamentEmojiService: TournamentEmoji) {}
+  constructor(
+    private tournamentEmojiService: TournamentEmoji,
+    private narratorService: BattleNarrator
+  ) {}
 
   createFighter(): Fighter {
     const genre = Helper.randomGenre();
@@ -197,7 +212,7 @@ class FighterManager {
     return fighter;
   }
 
-  resolveBattle(fighterA: Fighter, fighterB: Fighter): Fighter {
+  async resolveBattle(fighterA: Fighter, fighterB: Fighter): Promise<Fighter> {
     if (!fighterA.isAlive || !fighterB.isAlive)
       throw new Error(
         "¡Ambos luchadores deben estar en pie para comenzar la batalla! Asegúrate de que no haya caído ningún guerrero en el camino."
@@ -206,13 +221,30 @@ class FighterManager {
     let isTurnFighterA = fighterA.getVelocity > fighterB.getVelocity;
     while (fighterA.isAlive && fighterB.isAlive) {
       if (isTurnFighterA) {
-        fighterA.attack(fighterB);
+        this.narratorService.attack(fighterA, fighterB);
+        fighterA.attack(fighterB, this.narratorService);
       } else {
-        fighterB.attack(fighterA);
+        this.narratorService.attack(fighterB, fighterA);
+        fighterB.attack(fighterA, this.narratorService);
       }
       isTurnFighterA = !isTurnFighterA;
+      await Helper.clearConsole(2500);
     }
     return fighterA.isAlive ? fighterB : fighterA;
+  }
+}
+
+class BattleNarrator {
+  startBattle(fighterA: Fighter, fighterB: Fighter) {}
+
+  attack(fighterA: Fighter, fighterB: Fighter) {
+    console.log("*".repeat(50));
+    console.log(`👴🏻: ${fighterA.beautyName} ataca a ${fighterB.beautyName}`);
+    console.log("*".repeat(50));
+  }
+
+  dodge(fighter: Fighter) {
+    console.log(`👴🏻: ${fighter.beautyName} esquiva el ataque. 😮`);
   }
 }
 
@@ -220,16 +252,22 @@ class FighterManager {
 // = MAIN =
 // ========
 
-(() => {
+(async () => {
   const tournamentEmojiService = new TournamentEmoji();
-  const fighterManager = new FighterManager(tournamentEmojiService);
+  const narratorService = new BattleNarrator();
+  const fighterManager = new FighterManager(
+    tournamentEmojiService,
+    narratorService
+  );
 
   const fighterA = fighterManager.createFighter();
   const fighterB = fighterManager.createFighter();
 
+  console.log("Luchadores:");
   console.log(fighterA.toString);
   console.log(fighterB.toString);
+  console.log("*".repeat(50));
 
-  const loser = fighterManager.resolveBattle(fighterA, fighterB);
+  const loser = await fighterManager.resolveBattle(fighterA, fighterB);
   console.log(loser.toString);
 })();
