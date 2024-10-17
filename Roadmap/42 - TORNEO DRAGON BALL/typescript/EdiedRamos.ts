@@ -5,6 +5,8 @@
 // ===============
 // = DEFINITIONS =
 // ===============
+const CHANCE_TO_MISS = 0.2;
+const DAMAGE_REDUCTION_PERCENTAGE = 0.1;
 
 const GENRES = ["male", "female"] as const;
 type Genre = (typeof GENRES)[number];
@@ -135,17 +137,33 @@ class Fighter {
     return `[${this.tournamentEmojiService.defense}${this.protection}]`;
   }
 
-  // TODO: Implement this method
-  attack(): void {
-    // logic goes here
+  private decrementHealth(amount: number): void {
+    this.health = Math.max(0, this.health - amount);
   }
 
-  // TODO: Implement this method
-  defense(): void {
-    // logic goes here
+  attack(opponent: Fighter): void {
+    opponent.defense(this.damage);
   }
 
-  toString(): string {
+  defense(damage: number): void {
+    const isAttackMissed = Math.random() < CHANCE_TO_MISS;
+    console.log({ isAttackMissed });
+    if (isAttackMissed) return;
+
+    if (this.protection > damage) {
+      const finalDamage = Math.ceil(damage * DAMAGE_REDUCTION_PERCENTAGE);
+      this.decrementHealth(finalDamage);
+      return;
+    }
+
+    this.decrementHealth(damage);
+  }
+
+  set setHealth(health: number) {
+    this.health = health;
+  }
+
+  get toString(): string {
     return `${this.beautyName}${this.beautyHealth}${this.beautyVelocity}${this.beautyDamage}${this.beautyProtection}`;
   }
 }
@@ -179,8 +197,14 @@ class FighterManager {
   const tournamentEmojiService = new TournamentEmoji();
   const fighterManager = new FighterManager(tournamentEmojiService);
 
-  console.log(fighterManager.createFighter().toString());
-  console.log(fighterManager.createFighter().toString());
-  console.log(fighterManager.createFighter().toString());
-  console.log(fighterManager.createFighter().toString());
+  const fighterA = fighterManager.createFighter();
+  const fighterB = fighterManager.createFighter();
+
+  console.log(fighterA.toString);
+  console.log(fighterB.toString);
+
+  fighterA.attack(fighterB);
+
+  console.log(fighterA.toString);
+  console.log(fighterB.toString);
 })();
