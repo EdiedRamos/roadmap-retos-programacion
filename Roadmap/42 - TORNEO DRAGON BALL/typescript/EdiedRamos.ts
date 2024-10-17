@@ -139,6 +139,18 @@ class Fighter {
     return `${this.tournamentEmojiService.defense}(${this.protection})`;
   }
 
+  get toString(): string {
+    return `${this.beautyName}🔹${this.beautyHealth}🔹${this.beautyVelocity}🔹${this.beautyDamage}🔹${this.beautyProtection}`;
+  }
+
+  get isAlive(): boolean {
+    return this.health > 0;
+  }
+
+  get getVelocity(): number {
+    return this.velocity;
+  }
+
   private decrementHealth(amount: number): void {
     this.health = Math.max(0, this.health - amount);
   }
@@ -163,10 +175,6 @@ class Fighter {
   set setHealth(health: number) {
     this.health = health;
   }
-
-  get toString(): string {
-    return `${this.beautyName}🔹${this.beautyHealth}🔹${this.beautyVelocity}🔹${this.beautyDamage}🔹${this.beautyProtection}`;
-  }
 }
 
 class FighterManager {
@@ -188,6 +196,24 @@ class FighterManager {
     );
     return fighter;
   }
+
+  resolveBattle(fighterA: Fighter, fighterB: Fighter): Fighter {
+    if (!fighterA.isAlive || !fighterB.isAlive)
+      throw new Error(
+        "¡Ambos luchadores deben estar en pie para comenzar la batalla! Asegúrate de que no haya caído ningún guerrero en el camino."
+      );
+
+    let isTurnFighterA = fighterA.getVelocity > fighterB.getVelocity;
+    while (fighterA.isAlive && fighterB.isAlive) {
+      if (isTurnFighterA) {
+        fighterA.attack(fighterB);
+      } else {
+        fighterB.attack(fighterA);
+      }
+      isTurnFighterA = !isTurnFighterA;
+    }
+    return fighterA.isAlive ? fighterB : fighterA;
+  }
 }
 
 // ========
@@ -204,8 +230,6 @@ class FighterManager {
   console.log(fighterA.toString);
   console.log(fighterB.toString);
 
-  fighterA.attack(fighterB);
-
-  console.log(fighterA.toString);
-  console.log(fighterB.toString);
+  const loser = fighterManager.resolveBattle(fighterA, fighterB);
+  console.log(loser.toString);
 })();
