@@ -118,23 +118,23 @@ class Fighter {
   ) {}
 
   get beautyName() {
-    return `[${this.avatar}${this.name}]`;
+    return `${this.avatar}(${this.name})`;
   }
 
   get beautyHealth() {
-    return `[${this.tournamentEmojiService.health(this.health)}${this.health}]`;
+    return `${this.tournamentEmojiService.health(this.health)}(${this.health})`;
   }
 
   get beautyVelocity() {
-    return `[${this.tournamentEmojiService.speed}${this.velocity}]`;
+    return `${this.tournamentEmojiService.speed}(${this.velocity})`;
   }
 
   get beautyDamage() {
-    return `[${this.tournamentEmojiService.attack}${this.damage}]`;
+    return `${this.tournamentEmojiService.attack}(${this.damage})`;
   }
 
   get beautyProtection() {
-    return `[${this.tournamentEmojiService.defense}${this.protection}]`;
+    return `${this.tournamentEmojiService.defense}(${this.protection})`;
   }
 
   private decrementHealth(amount: number): void {
@@ -147,7 +147,6 @@ class Fighter {
 
   defense(damage: number): void {
     const isAttackMissed = Math.random() < CHANCE_TO_MISS;
-    console.log({ isAttackMissed });
     if (isAttackMissed) return;
 
     if (this.protection > damage) {
@@ -164,7 +163,7 @@ class Fighter {
   }
 
   get toString(): string {
-    return `${this.beautyName}${this.beautyHealth}${this.beautyVelocity}${this.beautyDamage}${this.beautyProtection}`;
+    return `${this.beautyName}🔹${this.beautyHealth}🔹${this.beautyVelocity}🔹${this.beautyDamage}🔹${this.beautyProtection}`;
   }
 }
 
