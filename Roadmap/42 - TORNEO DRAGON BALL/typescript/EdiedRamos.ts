@@ -218,33 +218,49 @@ class FighterManager {
         "¡Ambos luchadores deben estar en pie para comenzar la batalla! Asegúrate de que no haya caído ningún guerrero en el camino."
       );
 
+    await this.narratorService.startBattle(fighterA, fighterB);
+
     let isTurnFighterA = fighterA.getVelocity > fighterB.getVelocity;
     while (fighterA.isAlive && fighterB.isAlive) {
+      this.narratorService.currentStats(fighterA, fighterB);
       if (isTurnFighterA) {
-        this.narratorService.attack(fighterA, fighterB);
+        await this.narratorService.attack(fighterA, fighterB);
         fighterA.attack(fighterB, this.narratorService);
       } else {
-        this.narratorService.attack(fighterB, fighterA);
+        await this.narratorService.attack(fighterB, fighterA);
         fighterB.attack(fighterA, this.narratorService);
       }
       isTurnFighterA = !isTurnFighterA;
-      await Helper.clearConsole(2500);
     }
     return fighterA.isAlive ? fighterB : fighterA;
   }
 }
 
 class BattleNarrator {
-  startBattle(fighterA: Fighter, fighterB: Fighter) {}
+  async startBattle(fighterA: Fighter, fighterB: Fighter) {
+    console.log(`👴🏻: Tenemos el primero luchador ${fighterA.toString}`);
+    console.log(`👴🏻: Y el segundo luchador es ${fighterB.toString}`);
+    console.log("*".repeat(50));
+    await Helper.clearConsole(4000);
+    for (let i = 5; i >= 1; i--) {
+      console.log(`La batalla empieza en: ${i}`);
+      await Helper.clearConsole(1000);
+    }
+  }
 
-  attack(fighterA: Fighter, fighterB: Fighter) {
+  async attack(fighterA: Fighter, fighterB: Fighter) {
     console.log("*".repeat(50));
     console.log(`👴🏻: ${fighterA.beautyName} ataca a ${fighterB.beautyName}`);
     console.log("*".repeat(50));
+    await Helper.clearConsole(3500);
   }
 
   dodge(fighter: Fighter) {
     console.log(`👴🏻: ${fighter.beautyName} esquiva el ataque. 😮`);
+  }
+
+  currentStats(fighterA: Fighter, fighterB: Fighter) {
+    console.log(`⏩ ${fighterA.toString} 🆚 ${fighterB.toString}`);
   }
 }
 
@@ -262,11 +278,6 @@ class BattleNarrator {
 
   const fighterA = fighterManager.createFighter();
   const fighterB = fighterManager.createFighter();
-
-  console.log("Luchadores:");
-  console.log(fighterA.toString);
-  console.log(fighterB.toString);
-  console.log("*".repeat(50));
 
   const loser = await fighterManager.resolveBattle(fighterA, fighterB);
   console.log(loser.toString);
